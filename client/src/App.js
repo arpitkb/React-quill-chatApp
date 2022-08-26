@@ -1,24 +1,27 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from 'react';
+import Login from './components/Login';
+import Message from './components/Message';
+import './index.css';
 
 function App() {
+
+  const [name, setName] = useState(localStorage.getItem('chatApp_name') || null)
+
+  const [click,setClick] = useState(false)
+
+  useEffect(()=>{
+    setName(localStorage.getItem('chatApp_name') || null);
+  
+  },[click])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+
+    <>
+    {!name && <Login refresh={()=>{setClick(!click)}}/>}
+    {name && <Message name={name}/>}
+    </>
+
+      
   );
 }
 

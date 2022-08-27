@@ -37,24 +37,21 @@ const Message = ({name}) => {
 
   const sendMessage = async (msg)=>{
     if (!connected) return;
-      // messages.push(msg);
       setMessages((prev)=>{
           return [...prev,msg]
       })
-      // setMessages([...messages,msg])
       socket.emit("send-new-message", { message: msg , name });
       await axios.post("https://whatsapp-clone-4cbbd-default-rtdb.firebaseio.com/chats.json",msg );
-      // console.log("hah")
-      
   }
 
 
   const [content, setContent] = useState('');
 
   // socket.io use effects
-
   useEffect(() => {
-    const newsocket = io("ws://localhost:8080");
+    const url = process.env.NODE_ENV==='development' ? "localhost:8080" :  window.location.host
+    console.log(url)
+    const newsocket = io(`ws://${url}`);
     setSocket(newsocket);
 
     const getMsgs = async() => {
@@ -67,6 +64,7 @@ const Message = ({name}) => {
 
     return () => newsocket.close();
   }, []);
+
 
   useEffect(() => {
     if (!socket) return;
@@ -98,20 +96,19 @@ const Message = ({name}) => {
 
 
   return (
-    <div className='p-5 w-screen text-whit h-screen flex flex-col flex-grow border-r border-l border-gray-700'>
-        <div className='py-5 px-4 flex flex-col overflow-y-auto h-full border border-gray-700 rounded-lg'>
+    <div className='p-5 bg-gray-400 w-screen text-whit h-screen flex flex-col flex-grow border-r border-l border-gray-700'>
+        <div className='py-5 px-4 flex flex-col overflow-y-auto h-full'>
         {messages.length>0 &&  messages.map((el, index) => (
                   <>
                     <div
                       key={index}
                       ref={messages.length === index + 1 ? lastRef : null}
-                      className={`bg-[#caedeb] rounded-t-2xl mt-1.5 py-1 px-4 max-w-sm break-words ${
+                      className={`bg-gray-300 rounded-t-2xl mt-1.5 py-1 px-4 max-w-sm break-words ${
                         el.name==name
                           ? "rounded-l-2xl self-end"
                           : " rounded-r-2xl self-start"
                       }`}
                     >
-                      {/* {el.content} */}
                       <ReactQuill 
                         value={el.content} 
                         readOnly
@@ -125,7 +122,6 @@ const Message = ({name}) => {
                         el.name===name && "self-end"
                       }`}
                     >
-                       {/* {messageTimeDisplay(el.createdAt)}{" "} */}
                       {el.name != name &&
                         el.name.split(" ")[0].toLowerCase()} 
                     </div>

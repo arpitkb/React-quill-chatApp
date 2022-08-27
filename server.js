@@ -22,17 +22,16 @@ const io = new Server(httpServer, {
 app.use(express.json());
 app.use(cors());
 
+// console.log(process.env.NODE_ENV)
 
-//serve static assets in production
-// const __dirname = path.resolve();
-// if (process.env.NODE_ENV === "production") {
-//   //set static folder
-//   app.use(express.static("client/build"));
-
-//   app.get("*", (req, res) => {
-//     res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-//   });
-// }
+// serve static assets in production
+if (process.env.NODE_ENV === "production") {
+  //set static folder
+  app.use(express.static("client/build"));
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+  });
+}
 
 
 io.on("connection", (socket) => {
@@ -45,15 +44,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send-new-message", ({ message, name }) => {
-    // let users = message.chat.users;
     if (!name) return console.log("user not defined");
-    // console.log(message)
-
-    // users.forEach((el) => {
-    //   if (el === message.sender._id) return;
-      socket.in("single_space").emit("recieve-new-message", message);
-      // socket.emit("recieve-new-message", message);
-    // });
+    socket.in("single_space").emit("recieve-new-message", message);
   });
 });
 

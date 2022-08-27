@@ -1,35 +1,25 @@
-import React, { useState,useRef,useCallback ,useMemo, useEffect } from 'react'
-import JoditEditor from "jodit-react";
-import Editor from './Editor';
-import TextareaAutosize from "react-textarea-autosize";
+import React, { useState,useCallback, useEffect } from 'react'
+import ReactQuill from 'react-quill'
+import 'react-quill/dist/quill.snow.css'
+import 'react-quill/dist/quill.bubble.css'
 import axios from 'axios'
 import io from "socket.io-client";
 
-const config = {
-  theme:"dark",
-  useSearch: false,
-  spellcheck: false,
-  enter: "p",
-  defaultMode: "1",
-  toolbarAdaptive: false,
-  toolbarSticky: false,
-  showCharsCounter: false,
-  showWordsCounter: false,
-  showXPathInStatusbar: false,
-  askBeforePasteHTML: false,
-  askBeforePasteFromWord: false,
-  minHeight:150,
-  maxHeight:300,
-  minWidth: null,
-  buttons:
-    "bold,italic,underline,ul,strikethrough,ol,image,link,source",
-  editorCssClass: "alic",
-  placeHolder: "",
-  controls:{
+const modules = {
+  toolbar: [
+    ['bold', 'italic','strike', 'blockquote'],
+    [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+    ['link', 'image'],
+    ['code-block']
+  ],
+}
 
-  }
-  
-};
+const formats = [
+  'bold', 'italic', 'strike', 'blockquote',
+  'list', 'bullet', 'indent',
+  'link', 'image',
+  'code-block'
+]
 
 
 const Message = ({name}) => {
@@ -88,8 +78,6 @@ const Message = ({name}) => {
       setMessages((prev)=>{
           return [...prev,msg]
       })
-      // messages.push(msg)
-      // console.log(messages)
     };
 
     const connectedCallback = () => {
@@ -123,7 +111,13 @@ const Message = ({name}) => {
                           : " rounded-r-2xl self-start"
                       }`}
                     >
-                      {el.content}
+                      {/* {el.content} */}
+                      <ReactQuill 
+                        value={el.content} 
+                        readOnly
+                        theme='bubble'
+                  
+                      />
                     </div>
                     <div
                       key={index==0?'a123dsfe':-1*index}
@@ -138,66 +132,27 @@ const Message = ({name}) => {
                   </>
                 ))}
         </div>
-        {/* <div className='px-4 py-2 border mt-4 border-gray-700 flex flex-col rounded-lg'> */}
-            {/* <div className='border-gray-700 mt-2'> */}
-            {/* <Editor
-              config={config}
-              value={content}
-              onChange={(c) => {
-                setContent(c);
-                console.log(c);
-              }}
-              onKeyDown={(e)=>{
-                console.log(e)
-              }}
-            /> */}
-            
-            {/* </div> */}
-        {/* </div> */}
-        <div className=' mt-auto flex flex-col'>
-              {/* <div className='ml-5 mb-10 mr-auto'>
-                <TypingLoader />
-              </div> */}
-              <div className='border-y flex items-center border-gray-700 py-1.5 px-3'>
-                <TextareaAutosize
-                  style={{ resize: "none" }}
-                  minRows={1}
-                  placeholder='Start a new message'
-                  value={content}
-                  maxRows={10}
-                  // onBlur={() => {
-                  //   socket.emit("stop-typing", chat._id);
-                  // }}
-                  onKeyDown={(e) => {
-                    if (e.key == "Enter") {
-                      e.preventDefault();
-                      if(content.trim()==="") return;
-                      const msg = {content,name}
-                      sendMessage(msg);
-                      setContent('')
+        <div className='mt-auto flex flex-col'>
+        <div className='px-3 text-sm'><em>Press Right ctrl to send</em></div>
+            <div className='flex items-center py-1.5 px-3'>
+              
+               <ReactQuill 
+                  modules={modules} 
+                  formats={formats} 
+                  className='max-h-56 overflow-y-auto w-screen' 
+                  onKeyDown={(e)=>{
+                    if(e.keyCode == 17){
+                        const msg = {content,name}
+                        sendMessage(msg)
+                        setContent('')
                     }
                   }}
-                  onChange={
-                    // updateTyping
-                    (e)=>{
-                      setContent(e.target.value)
-                    }
-                  }
-                  className='bg-transparent px-4 outline-none text-black text-sm placeholder-gray-500 w-full border border-gray-700 focus:border-[#1d9bf0] rounded-3xl py-2'
+                  theme='snow' 
+                  value={content} 
+                  onChange={setContent}
                 />
-                <button
-                  onClick={() => {
-                    // socket.emit("stop-typing", chat._id);
-                    // sendMessage();
-                    // ref.current.value = "";
-                  }}
-                  // disabled={ref.current && !ref.current.value.trim()}
-                  className='hoverAnim disabled:cursor-not-allowed cursor-pointer h-9 w-9 flex justify-center mx-1 items-center xl:px-0'
-                >
-                  {/* <ChevronDoubleRightIcon className='h-5 text-[#1d9bf0]' /> */}
-                </button>
-              </div>
             </div>
+        </div>
     </div>
   )
 }

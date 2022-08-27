@@ -20,5 +20,13 @@ npm run start
 
 ## Usage
 Login using different names in different browsers.
-Format text using the toolbar provided and send message (right ctrl).
+Format text using the toolbar provided and send message.
+
+## Deploy to Heroku
+Run in root folder
+```
+npm install heroku -g
+heroku create <app-name-here>
+git push heroku master
+```
 

@@ -27,6 +27,7 @@ const Message = ({name}) => {
   const [messages, setMessages] = useState([]);
   const [socket, setSocket] = useState();
   const [connected, setConnected] = useState(false)
+  const [isTyping, setIsTyping] = useState(false);
 
   const lastRef = useCallback((node) => {
     if (node) {
@@ -66,6 +67,7 @@ const Message = ({name}) => {
   }, []);
 
 
+
   useEffect(() => {
     if (!socket) return;
 
@@ -83,16 +85,31 @@ const Message = ({name}) => {
       setConnected(true);
     };
 
-    
+
+    const typingCallback = () =>{
+      console.log("typing")
+      setIsTyping(true);
+    }
+
+    socket.on('typing ',typingCallback)
     socket.on("connected", connectedCallback);
     socket.on("recieve-new-message", callback);
 
     return () => {
       socket.off("connected", connectedCallback);
       socket.off("recieve-new-message", callback);
+      socket.off('typing', typingCallback)
     };
   }, [socket]);
 
+
+  const startTyping = ()=>{
+    if(!socket) return;
+    if(!isTyping){
+      socket.emit('typing')
+    }
+    
+  }
 
 
   return (
@@ -113,7 +130,6 @@ const Message = ({name}) => {
                         value={el.content} 
                         readOnly
                         theme='bubble'
-                  
                       />
                     </div>
                     <div
@@ -130,6 +146,7 @@ const Message = ({name}) => {
         </div>
         <div className='mt-auto flex flex-col'>
         <div className='px-3 text-sm'><em>Press Right ctrl to send</em></div>
+        {isTyping && <div className='px-3 text-sm'><em>Typing...</em></div>}
             <div className='flex items-center py-1.5 px-3'>
               
                <ReactQuill 
@@ -137,6 +154,8 @@ const Message = ({name}) => {
                   formats={formats} 
                   className='max-h-56 overflow-y-auto w-screen' 
                   onKeyDown={(e)=>{
+                    startTyping();
+                    // console.log('typing..')
                     if(e.keyCode == 17){
                         const msg = {content,name}
                         sendMessage(msg)

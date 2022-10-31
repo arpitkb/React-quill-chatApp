@@ -22,7 +22,7 @@ const io = new Server(httpServer, {
 app.use(express.json());
 app.use(cors());
 
-// console.log(process.env.NODE_ENV)
+
 
 // serve static assets in production
 if (process.env.NODE_ENV === "production") {
@@ -39,14 +39,19 @@ io.on("connection", (socket) => {
 
   socket.on("setUp", (name) => {
     // console.log(name);
-    socket.join("single_space");
+    socket.join("room");
     socket.emit("connected");
   });
 
   socket.on("send-new-message", ({ message, name }) => {
     if (!name) return console.log("user not defined");
-    socket.in("single_space").emit("recieve-new-message", message);
+    socket.in("room").emit("recieve-new-message", message);
   });
+
+  socket.on('typing', ()=>{
+      // console.log('typing')
+      socket.in("room").emit('typing')
+  })
 });
 
 // listen to server

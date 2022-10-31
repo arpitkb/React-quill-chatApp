@@ -26,7 +26,7 @@ Format text using the toolbar provided and send message.
 Run in root folder
 ```
 npm install heroku -g
-heroku create <app-name-here>
+heroku create <custom-app-name-here>
 git push heroku master
 ```
 
